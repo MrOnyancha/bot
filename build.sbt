@@ -1,3 +1,6 @@
+import com.typesafe.sbt.packager.MappingsHelper._
+import import play.Play; 
+
 name := """reddit-bot"""
 
 version := "1.0-SNAPSHOT"
@@ -17,3 +20,7 @@ resolvers ++= Seq(
   "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases",
   "edulify-repository" at "https://edulify.github.io/modules/releases/"
 )
+
+Play.application().getFile("/opt/bot/");
+
+mappings in Universal ++= directory(baseDirectory.value / "public")
