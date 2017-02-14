@@ -1,5 +1,5 @@
 import com.typesafe.sbt.packager.MappingsHelper._
-import import play.Play; 
+import play.Play; 
 
 name := """reddit-bot"""
 
