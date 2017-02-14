@@ -1,5 +1,6 @@
 import com.typesafe.sbt.packager.MappingsHelper._
-import play.Play; 
+
+
 
 name := """reddit-bot"""
 
@@ -21,6 +22,5 @@ resolvers ++= Seq(
   "edulify-repository" at "https://edulify.github.io/modules/releases/"
 )
 
-Play.application().getFile("/opt/bot/");
 
 mappings in Universal ++= directory(baseDirectory.value / "public")
