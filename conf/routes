@@ -1,6 +1,7 @@
 GET     /healthcheck                        controllers.HealthController.index
 
 # Callbacks
+GET     /privatepolicy/*file                   controllers.Assets.versioned(path="/public", file: Asset)     
 GET     /.well-known/acme-challenge/:key    controllers.CallbacksController.letsEncrypt(key: String)
 GET     /facebook/callback                  controllers.MessengerController.verifyApp
-POST    /facebook/callback                  controllers.MessengerController.receiveMessage
+POST    /facebook/callback                   controllers.MessengerController.receiveMessage
