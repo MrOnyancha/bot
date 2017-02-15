@@ -99,8 +99,8 @@ class MessengerController @Inject() (ws: WSClient,
           * }
           * }}}
           */
-
         val entries = (data \ "entry").as[List[JsValue]]
+        println(s"TESTING THE ENTRY: $entries ")
         entries.foreach { pageEntry =>
           //val pageID = (pageEntry \ "id").as[Long]
           //val timeOfEvent = (pageEntry \ "time").as[Long]
@@ -126,6 +126,7 @@ class MessengerController @Inject() (ws: WSClient,
     val recipientID = (event \ "recipient" \ "id").as[String]
 
     val maybeMessage = (event \ "message").asOpt[JsObject]
+
     println {
       "Received message for user %s and page %s with message: %s".format(senderID, recipientID, maybeMessage)
     }
