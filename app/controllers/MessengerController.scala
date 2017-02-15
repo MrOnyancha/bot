@@ -176,7 +176,7 @@ class MessengerController @Inject()(
               "buttons" ->  Json.arr(
                 Json.obj(
                   "type" -> "account_link",
-                  "url" -> "https://facebook-login-for-bots.herokuapp.com"
+                  "url" -> "https://app.clinicpesa.com"
                 )
               )
             )
