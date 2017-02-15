@@ -9,17 +9,17 @@ import play.api.libs.ws.WSClient
 //import models.Messages._
 import play.api.Configuration
 import play.api.libs.json._
-import play.api.mvc.{ Action, Controller }
-import services.{ MessengerService, RedditService }
+import play.api.mvc.{Action, Controller}
+import services.{MessengerService, RedditService}
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.ExecutionContext
 
 @Singleton
-class MessengerController @Inject() (ws: WSClient,
-    messengerService: MessengerService,
-    config: Configuration,
-    redditService: RedditService
-)(implicit executionContext: ExecutionContext) extends Controller {
+class MessengerController @Inject()(ws: WSClient,
+                                    messengerService: MessengerService,
+                                    config: Configuration,
+                                    redditService: RedditService
+                                   )(implicit executionContext: ExecutionContext) extends Controller {
 
   def verifyApp = Action { implicit request =>
     val expectedToken = config
@@ -35,35 +35,35 @@ class MessengerController @Inject() (ws: WSClient,
     }
   }
 
-//  def receiveMessage = Action.async(parse.tolerantJson) { request =>
-//    val futures = request.body.as[ReceivedMessage].entry
-//      .flatMap(_.messaging)
-//      .filter(_.message.isDefined)
-//      .map(messaging => messaging.sender -> messaging.message.get)
-//      .map { tuple =>
-//        val sender = tuple._1
-//        val message = tuple._2
-//        message.text match {
-//          case Messages.commandPattern(subreddit, order) => println(subreddit, order); Future(Json.toJson(Messages.help(sender)))// getRedditPosts(subreddit, order, sender)
-//          case _ => Future(Json.toJson(Messages.help(sender)))
-//        }
-//      }
-//      .map(messengerService.reply)
-//    Future.sequence(futures).map(responses => Ok("Finished"))
-//  }
-//
-//  private def getRedditPosts(subreddit: String, order: String, sender: User): Future[JsValue] = {
-//    redditService.getSubreddit(subreddit, order, Some(10)).map {
-//      posts =>
-//        Json.toJson(
-//          StructuredMessage(
-//            recipient = sender,
-//            message = Map("attachment" -> Attachment.from(posts))
-//          )
-//        )
-//    }
-//  }
-//}
+  //  def receiveMessage = Action.async(parse.tolerantJson) { request =>
+  //    val futures = request.body.as[ReceivedMessage].entry
+  //      .flatMap(_.messaging)
+  //      .filter(_.message.isDefined)
+  //      .map(messaging => messaging.sender -> messaging.message.get)
+  //      .map { tuple =>
+  //        val sender = tuple._1
+  //        val message = tuple._2
+  //        message.text match {
+  //          case Messages.commandPattern(subreddit, order) => println(subreddit, order); Future(Json.toJson(Messages.help(sender)))// getRedditPosts(subreddit, order, sender)
+  //          case _ => Future(Json.toJson(Messages.help(sender)))
+  //        }
+  //      }
+  //      .map(messengerService.reply)
+  //    Future.sequence(futures).map(responses => Ok("Finished"))
+  //  }
+  //
+  //  private def getRedditPosts(subreddit: String, order: String, sender: User): Future[JsValue] = {
+  //    redditService.getSubreddit(subreddit, order, Some(10)).map {
+  //      posts =>
+  //        Json.toJson(
+  //          StructuredMessage(
+  //            recipient = sender,
+  //            message = Map("attachment" -> Attachment.from(posts))
+  //          )
+  //        )
+  //    }
+  //  }
+  //}
 
 
   def receiveMessage = Action(parse.tolerantJson) { req =>
@@ -122,6 +122,7 @@ class MessengerController @Inject() (ws: WSClient,
   }
 
   private def receivedMessage(event: JsObject) = {
+
     val senderID = (event \ "sender" \ "id").as[String]
     val recipientID = (event \ "recipient" \ "id").as[String]
 
@@ -139,18 +140,18 @@ class MessengerController @Inject() (ws: WSClient,
       }
     }
 
-    maybeDelivery.foreach { delivery =>
-      (delivery \ "watermark").asOpt[String].foreach { deliveryText =>
-        sendTextMessage(senderID, "Delivered")
-      }
-    }
-
-
-    maybeRead.foreach { read =>
-      (read \ "watermark").asOpt[String].foreach { readText =>
-        sendTextMessage(senderID, "Read")
-      }
-    }
+    //    maybeDelivery.foreach { delivery =>
+    //      (delivery \ "watermark").asOpt[String].foreach { deliveryText =>
+    //        sendTextMessage(senderID, "Delivered")
+    //      }
+    //    }
+    //
+    //
+    //    maybeRead.foreach { read =>
+    //      (read \ "watermark").asOpt[String].foreach { readText =>
+    //        sendTextMessage(senderID, "Read")
+    //      }
+    //    }
   }
 
 
@@ -161,8 +162,45 @@ class MessengerController @Inject() (ws: WSClient,
       .getOrElse("https://graph.facebook.com/v2.8/me/messages"))
       .withQueryString("access_token" -> ACCESS_TOKEN)
       .post(Json.obj(
+        //        Json.arr
         "recipient" -> Json.obj("id" -> recipientID),
-        "message" -> Json.obj("text" -> messageText.toUpperCase)
-      ))
+        "message" -> Json.obj(
+          "attachment" -> Json.obj(
+            "type" -> "template",
+            "payload" -> Json.obj(
+              "template_type" -> "generic",
+              "elements" -> Json.arr(Json.obj(
+                "title" -> "rift",
+                "subtitle" -> "Next-generation virtual reality",
+                "item_url" -> "https://www.oculus.com/en-us/rift/",
+                "image_url" -> "http://messengerdemo.parseapp.com/img/rift.png",
+                "buttons" -> Json.arr(Json.obj(
+                  "type" -> "web_url",
+                  "url" -> "https://www.oculus.com/en-us/rift/",
+                  "title" -> "Open Web URL"
+                ), Json.obj(
+                  "type" -> "postback",
+                  "title" -> "Call Postback",
+                  "payload" -> "Payload for first bubble"
+                ))
+              ), Json.obj(
+                "title" -> "touch",
+                "subtitle" -> "Your Hands, Now in VR",
+                "item_url" -> "https://www.oculus.com/en-us/touch/",
+                "image_url" -> "http://messengerdemo.parseapp.com/img/touch.png",
+                "buttons" -> Json.arr(Json.obj(
+                  "type" -> "web_url",
+                  "url" -> "https://www.oculus.com/en-us/touch/",
+                  "title" -> "Open Web URL"
+                ), Json.obj(
+                  "type" -> "postback",
+                  "title" -> "Call Postback",
+                  "payload" -> "Payload for second bubble"
+                ))
+              ))
+            )
+          ))
+      )
+      )
   }
 }
