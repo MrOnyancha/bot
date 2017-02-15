@@ -4,7 +4,6 @@ import javax.inject.{Inject, Singleton}
 
 import play.api.libs.ws.WSClient
 
-
 //import models._
 //import models.Messages._
 import play.api.Configuration
@@ -15,10 +14,11 @@ import services.{MessengerService, RedditService}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class MessengerController @Inject()(ws: WSClient,
-                                    messengerService: MessengerService,
-                                    config: Configuration,
-                                    redditService: RedditService
+class MessengerController @Inject()(
+                                     ws: WSClient,
+                                     messengerService: MessengerService,
+                                     config: Configuration,
+                                     redditService: RedditService
                                    )(implicit executionContext: ExecutionContext) extends Controller {
 
   def verifyApp = Action { implicit request =>
@@ -64,7 +64,6 @@ class MessengerController @Inject()(ws: WSClient,
   //    }
   //  }
   //}
-
 
   def receiveMessage = Action(parse.tolerantJson) { req =>
     val data = req.body
@@ -131,7 +130,7 @@ class MessengerController @Inject()(ws: WSClient,
     val maybeRead = (event \ "read").asOpt[JsObject]
     val postBack = (event \ "postback").asOpt[JsObject]
 
-    if(postBack.nonEmpty){
+    if (postBack.nonEmpty) {
       sendTextMessage(senderID, postBack.get.fields.head.toString())
     }
 
@@ -159,8 +158,33 @@ class MessengerController @Inject()(ws: WSClient,
     //    }
   }
 
-
   def sendTextMessage(recipientID: String, messageText: String) = {
+    val ACCESS_TOKEN = config.getString("facebook.messages.token").getOrElse("")
+
+    ws.url(config.getString("facebook.messages.url")
+      .getOrElse("https://graph.facebook.com/v2.8/me/messages"))
+      .withQueryString("access_token" -> ACCESS_TOKEN)
+      .post(Json.obj(
+        //        Json.arr
+        "recipient" -> Json.obj("id" -> recipientID),
+        "message" -> Json.obj(
+          "buttons" -> Json.obj(
+            "type" -> "account_link",
+            "url" -> "https:app.clinicpesa.com"
+          ))
+      ))
+
+  }
+
+
+
+
+
+
+}
+
+
+/*def sendTextMessage(recipientID: String, messageText: String) = {
     val ACCESS_TOKEN = config.getString("facebook.messages.token").getOrElse("")
 
     ws.url(config.getString("facebook.messages.url")
@@ -204,8 +228,8 @@ class MessengerController @Inject()(ws: WSClient,
                 ))
               ))
             )
-          ))
-      )
-      )
+          )
+        )
+      ))
   }
-}
+*/

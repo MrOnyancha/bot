@@ -5,3 +5,4 @@ GET     /privatepolicy/*file                  controllers.Assets.versioned(path=
 GET     /.well-known/acme-challenge/:key    controllers.CallbacksController.letsEncrypt(key: String)
 GET     /facebook/callback                  controllers.MessengerController.verifyApp
 POST    /facebook/callback                   controllers.MessengerController.receiveMessage
+GET     /                                   controllers.Assets.at(path="/public", file="index.html")
