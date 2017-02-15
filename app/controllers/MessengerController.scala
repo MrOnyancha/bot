@@ -156,7 +156,7 @@ class MessengerController @Inject() (ws: WSClient,
     val ACCESS_TOKEN = config.getString("facebook.messages.token").getOrElse("")
 
     ws.url(config.getString("facebook.messages.url")
-      .getOrElse("https://graph.facebook.com/v2.6/me/messages"))
+      .getOrElse("https://graph.facebook.com/v2.8/me/messages"))
       .withQueryString("access_token" -> ACCESS_TOKEN)
       .post(Json.obj(
         "recipient" -> Json.obj("id" -> recipientID),
