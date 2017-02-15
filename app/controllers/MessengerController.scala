@@ -125,9 +125,9 @@ class MessengerController @Inject() (ws: WSClient,
     val senderID = (event \ "sender" \ "id").as[String]
     val recipientID = (event \ "recipient" \ "id").as[String]
 
-    val maybeMessage = (event \ "message").asOpt[JsObject]
-    val maybeDelivery = (event \ "delivery").asOpt[JsObject]
-    val maybeRead = (event \ "read").asOpt[JsObject]
+    var maybeMessage = (event \ "message").asOpt[JsObject]
+    var maybeDelivery = (event \ "delivery").asOpt[JsObject]
+    var maybeRead = (event \ "read").asOpt[JsObject]
 
     println {
       "Received message for user %s and page %s with message: %s".format(senderID, recipientID, maybeMessage)
@@ -138,6 +138,7 @@ class MessengerController @Inject() (ws: WSClient,
         sendTextMessage(senderID, messageText)
       }
     }
+    maybeMessage = null
 
     maybeDelivery.foreach { message =>
       (message \ "text").asOpt[String].foreach { messageText =>
@@ -145,12 +146,16 @@ class MessengerController @Inject() (ws: WSClient,
       }
     }
 
+    maybeDelivery = null
+
     maybeRead.foreach { message =>
       (message \ "text").asOpt[String].foreach { messageText =>
         sendTextMessage(senderID, "Read")
       }
     }
+    maybeRead = null
   }
+
 
   def sendTextMessage(recipientID: String, messageText: String) = {
     val ACCESS_TOKEN = config.getString("facebook.messages.token").getOrElse("")
