@@ -129,6 +129,11 @@ class MessengerController @Inject()(ws: WSClient,
     val maybeMessage = (event \ "message").asOpt[JsObject]
     val maybeDelivery = (event \ "delivery").asOpt[JsObject]
     val maybeRead = (event \ "read").asOpt[JsObject]
+    val postBack = (event \ "postback").asOpt[JsObject]
+
+    if(postBack.nonEmpty){
+      sendTextMessage(senderID, postBack.get.fields.head.toString())
+    }
 
     println {
       "Received message for user %s and page %s with message: %s".format(senderID, recipientID, maybeMessage)
