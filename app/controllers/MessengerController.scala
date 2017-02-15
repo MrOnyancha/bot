@@ -1,6 +1,8 @@
 package controllers
 
-import javax.inject.{ Inject, Singleton }
+import javax.inject.{Inject, Singleton}
+
+import play.api.libs.ws.WSClient
 
 
 //import models._
@@ -13,7 +15,7 @@ import services.{ MessengerService, RedditService }
 import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
-class MessengerController @Inject() (
+class MessengerController @Inject(ws: WSClient) (
     messengerService: MessengerService,
     config: Configuration,
     redditService: RedditService
