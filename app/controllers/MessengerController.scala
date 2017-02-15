@@ -15,7 +15,7 @@ import services.{ MessengerService, RedditService }
 import scala.concurrent.{ ExecutionContext, Future }
 
 @Singleton
-class MessengerController @Inject(ws: WSClient) (
+class MessengerController @Inject() (ws: WSClient,
     messengerService: MessengerService,
     config: Configuration,
     redditService: RedditService
