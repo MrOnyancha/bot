@@ -173,9 +173,11 @@ class MessengerController @Inject()(
             "payload" -> Json.obj(
               "template_type" -> "generic",
               "text" -> "Please Login",
-              "buttons" -> Json.obj(
-                "type" -> "account_link",
-                "url" -> "https:app.clinicpesa.com"
+              "buttons" ->  Json.arr(
+                Json.obj(
+                  "type" -> "account_link",
+                  "url" -> "https:app.clinicpesa.com"
+                )
               )
             )
           )
