@@ -171,7 +171,7 @@ class MessengerController @Inject()(
           "attachment" -> Json.obj(
             "type" -> "template",
             "payload" -> Json.obj(
-              "template_type" -> "generic",
+              "template_type" -> "button",
               "text" -> "Please Login",
               "buttons" ->  Json.arr(
                 Json.obj(
