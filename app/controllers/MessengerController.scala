@@ -141,7 +141,7 @@ class MessengerController @Inject() (ws: WSClient,
     maybeMessage = null
 
     maybeDelivery.foreach { message =>
-      (message \ "text").asOpt[String].foreach { messageText =>
+      (message \ "watermark").asOpt[String].foreach { messageText =>
         sendTextMessage(senderID, "Delivered")
       }
     }
@@ -149,7 +149,7 @@ class MessengerController @Inject() (ws: WSClient,
     maybeDelivery = null
 
     maybeRead.foreach { message =>
-      (message \ "text").asOpt[String].foreach { messageText =>
+      (message \ "watermark").asOpt[String].foreach { messageText =>
         sendTextMessage(senderID, "Read")
       }
     }
