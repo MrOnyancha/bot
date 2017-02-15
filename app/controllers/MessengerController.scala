@@ -126,6 +126,8 @@ class MessengerController @Inject() (ws: WSClient,
     val recipientID = (event \ "recipient" \ "id").as[String]
 
     val maybeMessage = (event \ "message").asOpt[JsObject]
+    val maybeDelivery = (event \ "delivery").asOpt[JsObject]
+    val maybeRead = (event \ "read").asOpt[JsObject]
 
     println {
       "Received message for user %s and page %s with message: %s".format(senderID, recipientID, maybeMessage)
@@ -134,6 +136,18 @@ class MessengerController @Inject() (ws: WSClient,
     maybeMessage.foreach { message =>
       (message \ "text").asOpt[String].foreach { messageText =>
         sendTextMessage(senderID, messageText)
+      }
+    }
+
+    maybeDelivery.foreach { message =>
+      (message \ "text").asOpt[String].foreach { messageText =>
+        sendTextMessage(senderID, "Delivered")
+      }
+    }
+
+    maybeRead.foreach { message =>
+      (message \ "text").asOpt[String].foreach { messageText =>
+        sendTextMessage(senderID, "Read")
       }
     }
   }
