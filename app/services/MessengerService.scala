@@ -30,7 +30,7 @@ class MessengerService @Inject() (config: Configuration, ws: WSClient)(implicit 
   }
 
   private def post(body: JsValue): Future[WSResponse] = ws.url(config.getString("facebook.messages.url")
-    .getOrElse("https://graph.facebook.com/v2.8/me/messages"))
+    .getOrElse("https://graph.facebook.com/v2.6/me/messages"))
     .withQueryString("access_token" -> config.getString("facebook.messages.token").getOrElse(""))
     .withHeaders(CONTENT_TYPE -> ContentTypes.JSON)
     .withRequestFilter(play.api.libs.ws.ahc.AhcCurlRequestLogger())
