@@ -22,6 +22,8 @@ class MessengerController @Inject() (
     val expectedToken = config
       .getString("facebook.app.verifyToken")
       .getOrElse(sys.error("Configuration `facebook.app.verifyToken` was not found."))
+
+    println(s" THE REQUEST:  ${request.body.asJson.toList.toString()}")
     request.getQueryString("hub.verify_token") match {
       case Some(verifyToken) =>
         val challenge = request.getQueryString("hub.challenge").getOrElse("")
