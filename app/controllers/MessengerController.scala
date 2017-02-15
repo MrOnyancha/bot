@@ -41,8 +41,8 @@ class MessengerController @Inject() (
         val sender = tuple._1
         val message = tuple._2
         message.text match {
-          case Messages.commandPattern(subreddit, order) => getRedditPosts(subreddit, order, sender)
-          case _ => Future(Json.toJson(Messages.help(sender)))
+          case Messages.commandPattern(subreddit, order) => println(subreddit, order); Future(Json.toJson())// getRedditPosts(subreddit, order, sender)
+          case _ =>println(_); Future(Json.toJson(Messages.help(sender)))
         }
       }
       .map(messengerService.reply)
