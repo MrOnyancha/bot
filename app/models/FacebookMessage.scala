@@ -111,13 +111,35 @@ object ReceivedMessage {
   */
 case class TextResponse(recipient: User, message: Message)
 
+object TextResponse {
+  implicit val writes = Json.writes[TextResponse]
+  implicit val reads = Json.reads[TextResponse]
+}
+
+
 case class Button(`type`: String = "web_url", title: String, url: String)
 
+object Button {
+  implicit val writes = Json.writes[Button]
+  implicit val reads = Json.reads[Button]
+}
+
 case class Card(title: String, subtitle: String, image_url: Option[String], buttons: Seq[Button])
+object Card {
+  implicit val writes = Json.writes[Card]
+  implicit val reads = Json.reads[Card]
+}
 
 case class Payload(template_type: String = "generic", elements: Seq[Card])
 
+object Payload {
+  implicit val writes = Json.writes[Payload]
+  implicit val reads = Json.reads[Payload]
+}
+
 case class Attachment(`type`: String = "template", payload: Payload)
+
+
 
 /**
   * The structured message to send rich content like bubbles/cards. It has the following structure:
@@ -202,6 +224,9 @@ object Attachment {
     else
       buttons :+ Button(title = "Reddit conversation", url = "https://www.reddit.com" + post.getPermalink)
   }
+
+  implicit val writes = Json.writes[Attachment]
+  implicit val reads = Json.reads[Attachment]
 }
 
 object Messages {
@@ -218,7 +243,7 @@ object Messages {
   implicit val cardFormat = Json.format[Card]
   implicit val payloadFormat = Json.format[Payload]
   implicit val attachmentFormat = Json.format[Attachment]
-  //  implicit val structuredMessageFormat = Json.format[StructuredMessage]
+    implicit val structuredMessageFormat = Json.format[StructuredMessage]
 
   implicit val errorFormat = Json.format[Error]
 
