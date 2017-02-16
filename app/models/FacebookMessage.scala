@@ -230,6 +230,12 @@ object Attachment {
 }
 
 object Messages {
+  def typingMessage(sender: User) = Json.obj(
+    //        Json.arr
+    "recipient" -> Json.obj("id" -> sender.id),
+    "sender_action" ->  "typing_on"
+  )
+
 
   implicit val userFormat = Json.format[User]
   implicit val messageFormat = Json.format[Message]
@@ -251,7 +257,7 @@ object Messages {
 
   def help(sender: User) = TextResponse(sender, message = Message(text =
     """
-      | I'm a robot. You need to be very specific with me. Here is what you can say:
+      | Welcome to clinicPesa services. Please choose the Number in the 
       | 1. help
       | 2. /subreddit/order where order is "hot", "top", "new", "controversial" or "rising".
       |

@@ -20,6 +20,7 @@ class MessengerService @Inject() (config: Configuration, ws: WSClient)(implicit 
       if (success(response)) Future(response)
       else replyWithError(json, response.json)
     }
+
   }
 
   private def replyWithError(body: JsValue, error: JsValue): Future[WSResponse] = {

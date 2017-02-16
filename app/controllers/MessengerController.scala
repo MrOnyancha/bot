@@ -56,6 +56,7 @@ class MessengerController @Inject()(
     .map { tuple =>
       val sender = tuple._1
       val message = tuple._2
+      messengerService.reply(Messages.typingMessage(sender))
       message.text match {
         case Messages.commandPattern(subreddit, order) => println(s" MESSAGE testing out the $subreddit , $order "); Future(Json.obj("TEST"-> "DONE"))
         case _ => Future(Json.toJson(Messages.help(sender)))
