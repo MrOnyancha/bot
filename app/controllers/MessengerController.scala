@@ -62,18 +62,18 @@ class MessengerController @Inject()(
 //    Future.sequence(futures).map(responses => Ok("Finished"))
 //  }
 
-  private def getRedditPosts(subreddit: String, order: String, sender: User): Future[JsValue] = {
-    redditService.getSubreddit(subreddit, order, Some(10)).map {
-      posts =>
-        Json.toJson(
-          StructuredMessage(
-            recipient = sender,
-            message = Map("attachment" -> Attachment.from(posts))
-          )
-        )
-    }
-
-  }
+//  private def getRedditPosts(subreddit: String, order: String, sender: User): Future[JsValue] = {
+//    redditService.getSubreddit(subreddit, order, Some(10)).map {
+//      posts =>
+//        Json.toJson(
+//          StructuredMessage(
+//            recipient = sender,
+//            message = Map("attachment" -> Attachment.from(posts))
+//          )
+//        )
+//    }
+//
+//  }
 
 
 }

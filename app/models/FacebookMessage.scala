@@ -159,7 +159,7 @@ case class Attachment(`type`: String = "template", payload: Payload)
  * @param recipient the user that will receive the message
  * @param message the message with attachment
  */
-case class StructuredMessage(recipient: User, message: Map[String, Attachment])
+//case class StructuredMessage(recipient: User, message: Map[String, Attachment])
 
 
 case class Error(
@@ -205,7 +205,7 @@ object Messages {
   implicit val cardFormat = Json.format[Card]
   implicit val payloadFormat = Json.format[Payload]
   implicit val attachmentFormat = Json.format[Attachment]
-  implicit val structuredMessageFormat = Json.format[StructuredMessage]
+//  implicit val structuredMessageFormat = Json.format[StructuredMessage]
 
   implicit val errorFormat = Json.format[Error]
 
