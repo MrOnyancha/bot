@@ -50,9 +50,8 @@ class MessengerController @Inject()(
   def processMessage (obj : ReceivedMessage) : Future[Result] =
     if( obj.entry.nonEmpty )
     obj.entry.head.messaging.head match {
-      case   Messaging(_,_,_,input,_) if input.isDefined => println(s" MESSAGE testing out the $input"); Future(Ok("SENT"))
-      case   Messaging(_,_,_,input,_) if input.isDefined => println(s" MESSAGE testing out the $input"); Future(Ok("SENT"))
-      case   Messaging(_,_,_,_,input) => println(s"DELiVERY testing out the $input"); Future(Ok("SENT"))
+      case   Messaging(_,_,_,input,_) if input.nonEmpty => println(s" MESSAGE testing out the $input"); Future(Ok("SENT"))
+      case   Messaging(_,_,_,_,input) if input.nonEmpty => println(s"DELiVERY testing out the $input"); Future(Ok("SENT"))
       case  x => println(s"Testing out the others $x"); Future(Ok("SENT"))
   }
     else Future(Ok("FAILURE"))
