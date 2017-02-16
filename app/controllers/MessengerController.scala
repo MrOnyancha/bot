@@ -38,22 +38,29 @@ class MessengerController @Inject()(
     }
   }
 
-  def receiveMessage = Action.async(parse.tolerantJson) { request =>
-    val futures = request.body.as[ReceivedMessage].entry
-      .flatMap(_.messaging)
-      .filter(_.message.isDefined)
-      .map(messaging => messaging.sender -> messaging.message.get)
-      .map { tuple =>
-        val sender = tuple._1
-        val message = tuple._2
-        message.text match {
-          case Messages.commandPattern(subreddit, order) => println(subreddit, order); Future(Json.toJson(Messages.help(sender))) // getRedditPosts(subreddit, order, sender)
-          case _ => Future(Json.toJson(Messages.help(sender)))
-        }
-      }
-      .map(messengerService.reply)
-    Future.sequence(futures).map(responses => Ok("Finished"))
+  def receiveMessage = Action.async(parse.json) { request =>
+    Json.fromJson[ReceivedMessage](request.body) match {
+      case JsSuccess(obj, _) => println(s"testing out the $obj"); Future(Ok("SENT"))
+    }
   }
+
+
+//    def receiveMessage = Action.async(parse.json) { request =>
+//    val futures = request.body.as[ReceivedMessage].entry
+//      .flatMap(_.messaging)
+//      .filter(_.message.isDefined)
+//      .map(messaging => messaging.sender -> messaging.message.get)
+//      .map { tuple =>
+//        val sender = tuple._1
+//        val message = tuple._2
+//        message.text match {
+//          case Messages.commandPattern(subreddit, order) => println(subreddit, order); Future(Json.toJson(Messages.help(sender))) // getRedditPosts(subreddit, order, sender)
+//          case _ => Future(Json.toJson(Messages.help(sender)))
+//        }
+//      }
+//      .map(messengerService.reply)
+//    Future.sequence(futures).map(responses => Ok("Finished"))
+//  }
 
   private def getRedditPosts(subreddit: String, order: String, sender: User): Future[JsValue] = {
     redditService.getSubreddit(subreddit, order, Some(10)).map {
