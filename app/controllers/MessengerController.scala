@@ -41,7 +41,7 @@ class MessengerController @Inject()(
   def receiveMessage = Action.async(parse.json) { request =>
     Json.fromJson[ReceivedMessage](request.body) match {
       case JsSuccess(obj, _) => println(s"testing out the $obj"); Future(Ok("SENT"))
-      case JsError(x) => println(s"testing out the $x"); Future(Ok("SENT"))
+      case JsError(x) => println(s"fail $x"); Future(Ok("SENT"))
     }
   }
 
