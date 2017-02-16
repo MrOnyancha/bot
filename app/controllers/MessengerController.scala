@@ -2,7 +2,10 @@ package controllers
 
 import javax.inject.{Inject, Singleton}
 
+import models._
 import play.api.libs.ws.WSClient
+
+import scala.concurrent.Future
 
 //import models._
 //import models.Messages._
@@ -35,164 +38,183 @@ class MessengerController @Inject()(
     }
   }
 
-  //  def receiveMessage = Action.async(parse.tolerantJson) { request =>
-  //    val futures = request.body.as[ReceivedMessage].entry
-  //      .flatMap(_.messaging)
-  //      .filter(_.message.isDefined)
-  //      .map(messaging => messaging.sender -> messaging.message.get)
-  //      .map { tuple =>
-  //        val sender = tuple._1
-  //        val message = tuple._2
-  //        message.text match {
-  //          case Messages.commandPattern(subreddit, order) => println(subreddit, order); Future(Json.toJson(Messages.help(sender)))// getRedditPosts(subreddit, order, sender)
-  //          case _ => Future(Json.toJson(Messages.help(sender)))
-  //        }
-  //      }
-  //      .map(messengerService.reply)
-  //    Future.sequence(futures).map(responses => Ok("Finished"))
-  //  }
-  //
-  //  private def getRedditPosts(subreddit: String, order: String, sender: User): Future[JsValue] = {
-  //    redditService.getSubreddit(subreddit, order, Some(10)).map {
-  //      posts =>
-  //        Json.toJson(
-  //          StructuredMessage(
-  //            recipient = sender,
-  //            message = Map("attachment" -> Attachment.from(posts))
-  //          )
-  //        )
-  //    }
-  //  }
-  //}
-
-  def receiveMessage = Action(parse.tolerantJson) { req =>
-    val data = req.body
-
-    (data \ "object").as[String] match {
-      // Make sure this is a page subscription
-      case "page" =>
-        // Iterate over each entry
-        // There may be multiple if batched
-        /**
-          * {{{
-          * {
-          *   "object":"page",
-          *   "entry":[
-          *     {
-          *       "id":"PAGE_ID",
-          *       "time":1458692752478,
-          *       "messaging":[
-          *         {
-          *           "sender":{
-          *             "id":"USER_ID"
-          *           },
-          *           "recipient":{
-          *             "id":"PAGE_ID"
-          *           },
-          *
-          *           ...
-          *         }
-          *       ]
-          *     }
-          *   ]
-          * }
-          * }}}
-          */
-        val entries = (data \ "entry").as[List[JsValue]]
-        println(s"TESTING THE ENTRY: $entries ")
-        entries.foreach { pageEntry =>
-          //val pageID = (pageEntry \ "id").as[Long]
-          //val timeOfEvent = (pageEntry \ "time").as[Long]
-
-          val messaging = (pageEntry \ "messaging").as[List[JsObject]]
-          messaging.foreach { messagingEvent =>
-            receivedMessage(messagingEvent)
-          }
+  def receiveMessage = Action.async(parse.tolerantJson) { request =>
+    val futures = request.body.as[ReceivedMessage].entry
+      .flatMap(_.messaging)
+      .filter(_.message.isDefined)
+      .map(messaging => messaging.sender -> messaging.message.get)
+      .map { tuple =>
+        val sender = tuple._1
+        val message = tuple._2
+        message.text match {
+          case Messages.commandPattern(subreddit, order) => println(subreddit, order); Future(Json.toJson(Messages.help(sender))) // getRedditPosts(subreddit, order, sender)
+          case _ => Future(Json.toJson(Messages.help(sender)))
         }
-
-        // Assume all went well.
-        //
-        // You must send back a 200, within 20 seconds, to let us know you've
-        // successfully received the callback. Otherwise, the request will time out.
-        Status(200)
-      case _ =>
-        Status(403)
-    }
-  }
-
-  private def receivedMessage(event: JsObject) = {
-
-    val senderID = (event \ "sender" \ "id").as[String]
-    val recipientID = (event \ "recipient" \ "id").as[String]
-
-    val maybeMessage = (event \ "message").asOpt[JsObject]
-    val maybeDelivery = (event \ "delivery").asOpt[JsObject]
-    val maybeRead = (event \ "read").asOpt[JsObject]
-    val postBack = (event \ "postback").asOpt[JsObject]
-
-    if (postBack.nonEmpty) {
-      sendTextMessage(senderID, postBack.get.fields.head.toString())
-    }
-
-    println {
-      "Received message for user %s and page %s with message: %s".format(senderID, recipientID, maybeMessage)
-    }
-
-    maybeMessage.foreach { message =>
-      (message \ "text").asOpt[String].foreach { messageText =>
-        sendTextMessage(senderID, messageText)
       }
-    }
-
-    //    maybeDelivery.foreach { delivery =>
-    //      (delivery \ "watermark").asOpt[String].foreach { deliveryText =>
-    //        sendTextMessage(senderID, "Delivered")
-    //      }
-    //    }
-    //
-    //
-    //    maybeRead.foreach { read =>
-    //      (read \ "watermark").asOpt[String].foreach { readText =>
-    //        sendTextMessage(senderID, "Read")
-    //      }
-    //    }
+      .map(messengerService.reply)
+    Future.sequence(futures).map(responses => Ok("Finished"))
   }
 
-  def sendTextMessage(recipientID: String, messageText: String) = {
-    val ACCESS_TOKEN = config.getString("facebook.messages.token").getOrElse("")
-
-    ws.url(config.getString("facebook.messages.url")
-      .getOrElse("https://graph.facebook.com/v2.6/me/messages"))
-      .withQueryString("access_token" -> ACCESS_TOKEN)
-      .post(Json.obj(
-        //        Json.arr
-        "recipient" -> Json.obj("id" -> recipientID),
-        "message" -> Json.obj(
-          "attachment" -> Json.obj(
-            "type" -> "template",
-            "payload" -> Json.obj(
-              "template_type" -> "button",
-              "text" -> "Please Login",
-              "buttons" ->  Json.arr(
-                Json.obj(
-                  "type" -> "account_link",
-                  "url" -> "https://app.clinicpesa.com"
-                )
-              )
-            )
+  private def getRedditPosts(subreddit: String, order: String, sender: User): Future[JsValue] = {
+    redditService.getSubreddit(subreddit, order, Some(10)).map {
+      posts =>
+        Json.toJson(
+          StructuredMessage(
+            recipient = sender,
+            message = Map("attachment" -> Attachment.from(posts))
           )
         )
-      )
-      )
+    }
 
   }
-
-
-
-
 
 
 }
+
+
+/* def receiveMessage = Action(parse.tolerantJson) { req =>
+   val data = req.body
+
+   (data \ "object").as[String] match {
+     // Make sure this is a page subscription
+     case "page" =>
+       // Iterate over each entry
+       // There may be multiple if batched
+       /**
+         * {{{
+         * {
+         *   "object":"page",
+         *   "entry":[
+         *     {
+         *       "id":"PAGE_ID",
+         *       "time":1458692752478,
+         *       "messaging":[
+         *         {
+         *           "sender":{
+         *             "id":"USER_ID"
+         *           },
+         *           "recipient":{
+         *             "id":"PAGE_ID"
+         *           },
+         *
+         *           ...
+         *         }
+         *       ]
+         *     }
+         *   ]
+         * }
+         * }}}
+         */
+       val entries = (data \ "entry").as[List[JsValue]]
+       println(s"TESTING THE ENTRY: $entries ")
+       entries.foreach { pageEntry =>
+         val pageID = (pageEntry \ "id").as[Long]
+         val timeOfEvent = (pageEntry \ "time").as[Long]
+
+         val messaging = (pageEntry \ "messaging").as[List[JsObject]]
+         messaging.foreach { messagingEvent =>
+           receivedMessage(messagingEvent)
+         }
+       }
+
+       // Assume all went well.
+       //
+       // You must send back a 200, within 20 seconds, to let us know you've
+       // successfully received the callback. Otherwise, the request will time out.
+       Status(200)
+     case _ =>
+       Status(403)
+   }
+ }
+*/
+
+
+/*
+   if (messagingEvent.optin) {
+        receivedAuthentication(messagingEvent);
+      } else if (messagingEvent.message) {
+        receivedMessage(messagingEvent);
+      } else if (messagingEvent.delivery) {
+        receivedDeliveryConfirmation(messagingEvent);
+      } else if (messagingEvent.postback) {
+        receivedPostback(messagingEvent);
+      } else if (messagingEvent.read) {
+        receivedMessageRead(messagingEvent);
+      } else if (messagingEvent.account_linking) {
+        receivedAccountLink(messagingEvent);
+      } else {
+        console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+      }
+*/
+
+
+/* private def receivedMessage(event: JsObject) = {
+
+   val senderID = (event \ "sender" \ "id").as[String]
+   val recipientID = (event \ "recipient" \ "id").as[String]
+
+   val maybeMessage = (event \ "message").asOpt[JsObject]
+   val maybeDelivery = (event \ "delivery").asOpt[JsObject]
+   val maybeRead = (event \ "read").asOpt[JsObject]
+   val postBack = (event \ "postback").asOpt[JsObject]
+
+   if (postBack.nonEmpty) {
+     sendTextMessage(senderID, postBack.get.fields.head.toString())
+   }
+
+   println {
+     "Received message for user %s and page %s with message: %s".format(senderID, recipientID, maybeMessage)
+   }
+
+   maybeMessage.foreach { message =>
+     (message \ "text").asOpt[String].foreach { messageText =>
+       sendTextMessage(senderID, messageText)
+     }
+   }
+
+   //    maybeDelivery.foreach { delivery =>
+   //      (delivery \ "watermark").asOpt[String].foreach { deliveryText =>
+   //        sendTextMessage(senderID, "Delivered")
+   //      }
+   //    }
+   //
+   //
+   //    maybeRead.foreach { read =>
+   //      (read \ "watermark").asOpt[String].foreach { readText =>
+   //        sendTextMessage(senderID, "Read")
+   //      }
+   //    }
+ }
+
+ def sendTextMessage(recipientID: String, messageText: String) = {
+   val ACCESS_TOKEN = config.getString("facebook.messages.token").getOrElse("")
+
+   ws.url(config.getString("facebook.messages.url")
+     .getOrElse("https://graph.facebook.com/v2.6/me/messages"))
+     .withQueryString("access_token" -> ACCESS_TOKEN)
+     .post(Json.obj(
+       //        Json.arr
+       "recipient" -> Json.obj("id" -> recipientID),
+       "message" -> Json.obj(
+         "attachment" -> Json.obj(
+           "type" -> "template",
+           "payload" -> Json.obj(
+             "template_type" -> "button",
+             "text" -> "Please Login",
+             "buttons" ->  Json.arr(
+               Json.obj(
+                 "type" -> "account_link",
+                 "url" -> "https://app.clinicpesa.com"
+               )
+             )
+           )
+         )
+       )
+     )
+     )
+
+ }
+*/
 
 
 /*def sendTextMessage(recipientID: String, messageText: String) = {
