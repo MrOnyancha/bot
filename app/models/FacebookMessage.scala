@@ -159,7 +159,7 @@ case class Attachment(`type`: String = "template", payload: Payload)
  * @param recipient the user that will receive the message
  * @param message the message with attachment
  */
-//case class StructuredMessage(recipient: User, message: Map[String, Attachment])
+case class StructuredMessage(recipient: User, message: Map[String, Attachment])
 
 
 case class Error(
