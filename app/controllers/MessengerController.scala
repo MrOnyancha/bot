@@ -41,20 +41,36 @@ class MessengerController @Inject()(
 
   def receiveMessage = Action.async(parse.json) { request =>
     Json.fromJson[ReceivedMessage](request.body) match {
-      case JsSuccess(obj, _) => processMessage (obj)
+      case JsSuccess(obj, _) => processMessage(obj)
       case JsError(x) => println(s"fail $x"); Future(Ok("SENT"))
     }
   }
 
 
-  def processMessage (obj : ReceivedMessage) : Future[Result] =
-    if( obj.entry.nonEmpty )
-    obj.entry.head.messaging.head match {
-      case   Messaging(_,_,_,input:Some[Message],_) => println(s" MESSAGE testing out the $input"); Future(Ok("SENT"))
-      case   Messaging(_,_,_,_,input:Some[Delivery])  => println(s"DELiVERY testing out the $input"); Future(Ok("SENT"))
-      case  x => println(s"Testing out the others $x"); Future(Ok("SENT"))
-  }
-    else Future(Ok("FAILURE"))
+  def processMessage(obj: ReceivedMessage): Future[Result] ={
+
+  val futures = obj.entry
+    .flatMap(_.messaging)
+    .filter(_.message.isDefined)
+    .map(messaging => messaging.sender -> messaging.message.get)
+    .map { tuple =>
+      val sender = tuple._1
+      val message = tuple._2
+      message.text match {
+        case Messages.commandPattern(subreddit, order) => println(s" MESSAGE testing out the $subreddit , $order "); Future(Json.obj("TEST"-> "DONE"))
+        case _ => Future(Json.toJson(Messages.help(sender)))
+      }
+    }
+    .map(messengerService.reply)
+  Future.sequence(futures).map(responses => Ok("Finished"))
+}
+//    if( obj.entry.nonEmpty )
+//    obj.entry.head.messaging.head match {
+//      case   Messaging(_,_,_,input:Some[Message],_) => println(s" MESSAGE testing out the $input"); Future(Ok("SENT"))
+//      case   Messaging(_,_,_,_,input:Some[Delivery])  => println(s"DELiVERY testing out the $input"); Future(Ok("SENT"))
+//      case  x => println(s"Testing out the others $x"); Future(Ok("SENT"))
+//  }
+//    else Future(Ok("FAILURE"))
 
 
 
