@@ -160,6 +160,10 @@ case class Attachment(`type`: String = "template", payload: Payload)
  * @param message the message with attachment
  */
 case class StructuredMessage(recipient: User, message: Map[String, Attachment])
+object StructuredMessage{
+  implicit val writes = Json.writes[StructuredMessage]
+  implicit val reads = Json.reads[StructuredMessage]
+}
 
 case class Error(
   message: String,
