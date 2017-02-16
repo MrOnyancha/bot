@@ -232,10 +232,10 @@ object Attachment {
 }
 
 object Messages {
-  def typingMessage(sender: User) = Future( Json.obj(
+  def typingMessage(sender: User) =  Json.obj(
     "recipient" -> Json.obj("id" -> sender.id),
     "sender_action" -> "typing_on"
-  ))
+  )
 
 
   implicit val userFormat = Json.format[User]
