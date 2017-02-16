@@ -3,7 +3,7 @@ package models
 import com.github.jreddit.parser.entity.Submission
 import play.api.libs.json.Json
 
-case class User(id: String)
+case class User(id: Long)
 case class Message(mid: Option[String] = None, seq: Option[Long] = None, text: String)
 case class Delivery(mids :Seq[String] , watermark: Long, seq: Long)
 
@@ -160,10 +160,7 @@ case class Attachment(`type`: String = "template", payload: Payload)
  * @param message the message with attachment
  */
 case class StructuredMessage(recipient: User, message: Map[String, Attachment])
-object StructuredMessage{
-  implicit val writes = Json.writes[StructuredMessage]
-  implicit val reads = Json.reads[StructuredMessage]
-}
+
 
 case class Error(
   message: String,
