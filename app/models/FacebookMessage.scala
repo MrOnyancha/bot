@@ -3,7 +3,7 @@ package models
 import com.github.jreddit.parser.entity.Submission
 import play.api.libs.json.Json
 
-case class User(id: Long)
+case class User(id: String)
 case class Message(mid: Option[String] = None, seq: Option[Long] = None, text: String)
 case class Delivery(mids :Seq[String] , watermark: Long, seq: Long)
 
