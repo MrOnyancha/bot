@@ -3,6 +3,8 @@ package models
 import com.github.jreddit.parser.entity.Submission
 import play.api.libs.json.Json
 
+import scala.concurrent.Future
+
 case class User(id: String)
 
 case class Message(mid: Option[String] = None, seq: Option[Long] = None, text: String)
@@ -125,6 +127,7 @@ object Button {
 }
 
 case class Card(title: String, subtitle: String, image_url: Option[String], buttons: Seq[Button])
+
 object Card {
   implicit val writes = Json.writes[Card]
   implicit val reads = Json.reads[Card]
@@ -138,7 +141,6 @@ object Payload {
 }
 
 case class Attachment(`type`: String = "template", payload: Payload)
-
 
 
 /**
@@ -230,11 +232,10 @@ object Attachment {
 }
 
 object Messages {
-  def typingMessage(sender: User) = Json.obj(
-    //        Json.arr
+  def typingMessage(sender: User) = Future( Json.obj(
     "recipient" -> Json.obj("id" -> sender.id),
-    "sender_action" ->  "typing_on"
-  )
+    "sender_action" -> "typing_on"
+  ))
 
 
   implicit val userFormat = Json.format[User]
@@ -249,7 +250,7 @@ object Messages {
   implicit val cardFormat = Json.format[Card]
   implicit val payloadFormat = Json.format[Payload]
   implicit val attachmentFormat = Json.format[Attachment]
-    implicit val structuredMessageFormat = Json.format[StructuredMessage]
+  implicit val structuredMessageFormat = Json.format[StructuredMessage]
 
   implicit val errorFormat = Json.format[Error]
 
