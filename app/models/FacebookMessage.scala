@@ -4,29 +4,37 @@ import com.github.jreddit.parser.entity.Submission
 import play.api.libs.json.Json
 
 case class User(id: String)
+
 case class Message(mid: Option[String] = None, seq: Option[Long] = None, text: String)
-case class Delivery(mids :Seq[String] , watermark: Long, seq: Long)
+
+case class Delivery(mids: Seq[String], watermark: Long, seq: Long)
 
 object User {
   implicit val writes = Json.writes[User]
   implicit val reads = Json.reads[User]
 }
+
 object Message {
   implicit val writes = Json.writes[Message]
   implicit val reads = Json.reads[Message]
 }
+
 object Delivery {
   implicit val writes = Json.writes[Delivery]
   implicit val reads = Json.reads[Delivery]
 }
 
 case class Messaging(
-  sender: User,
-  recipient: User,
-  timestamp: Option[Long] = None,
-  message: Option[Message] = None,
-  delivery: Option[Delivery] = None
-)
+                      sender: User,
+                      recipient: User,
+                      timestamp: Option[Long] = None,
+                      message: Option[Message] = None,
+                      delivery: Option[Delivery] = None
+                      //  postback:
+                      // read:
+                      // account_linking :
+                      //optin:
+                    )
 
 object Messaging {
   implicit val writes = Json.writes[Messaging]
@@ -34,140 +42,145 @@ object Messaging {
 }
 
 case class Entry(id: String, time: Long, messaging: Seq[Messaging])
+
 object Entry {
   implicit val writes = Json.writes[Entry]
   implicit val reads = Json.reads[Entry]
 }
 
 /**
- * Represents a message received from Messenger Platform. It has the following structure:
- *
- * {{{
- *   {
- *     "object":"page",
- *     "entry":[
- *       {
- *         "id":"PAGE_ID",
- *         "time":1460245674269,
- *         "messaging":[
- *           {
- *             "sender":{
- *               "id":"USER_ID"
- *             },
- *             "recipient":{
- *               "id":"PAGE_ID"
- *             },
- *             "timestamp":1460245672080,
- *             "message":{
- *               "mid":"mid.1460245671959:dad2ec9421b03d6f78",
- *               "seq":216,
- *               "text":"hello"
- *             }
- *           }
- *         ]
- *       }
- *     ]
- *   }
- * }}}
- *
- * @param `object` the facebook object from where the message is being sent
- * @param entry the messages
- */
+  * Represents a message received from Messenger Platform. It has the following structure:
+  *
+  * {{{
+  *   {
+  *     "object":"page",
+  *     "entry":[
+  *       {
+  *         "id":"PAGE_ID",
+  *         "time":1460245674269,
+  *         "messaging":[
+  *           {
+  *             "sender":{
+  *               "id":"USER_ID"
+  *             },
+  *             "recipient":{
+  *               "id":"PAGE_ID"
+  *             },
+  *             "timestamp":1460245672080,
+  *             "message":{
+  *               "mid":"mid.1460245671959:dad2ec9421b03d6f78",
+  *               "seq":216,
+  *               "text":"hello"
+  *             }
+  *           }
+  *         ]
+  *       }
+  *     ]
+  *   }
+  * }}}
+  *
+  * @param `object` the facebook object from where the message is being sent
+  * @param entry    the messages
+  */
 case class ReceivedMessage(`object`: String, entry: Seq[Entry])
 
 object ReceivedMessage {
   implicit val writes = Json.writes[ReceivedMessage]
   implicit val reads = Json.reads[ReceivedMessage]
 }
+
 /**
- * A simple text message that follow the structure below:
- *
- * {{{
- *   {
- *     "recipient": {
- *       "id": 12345
- *     },
- *     "message": {
- *        "text": "The message text"
- *     }
- *   }
- * }}}
- *
- * This is used to send very simple messages to the user, such as greetings and
- * also instructions about how to use the bot.
- *
- * @param recipient the user that will receive the message
- * @param message the message itself
- */
+  * A simple text message that follow the structure below:
+  *
+  * {{{
+  *   {
+  *     "recipient": {
+  *       "id": 12345
+  *     },
+  *     "message": {
+  *        "text": "The message text"
+  *     }
+  *   }
+  * }}}
+  *
+  * This is used to send very simple messages to the user, such as greetings and
+  * also instructions about how to use the bot.
+  *
+  * @param recipient the user that will receive the message
+  * @param message   the message itself
+  */
 case class TextResponse(recipient: User, message: Message)
 
 case class Button(`type`: String = "web_url", title: String, url: String)
+
 case class Card(title: String, subtitle: String, image_url: Option[String], buttons: Seq[Button])
+
 case class Payload(template_type: String = "generic", elements: Seq[Card])
+
 case class Attachment(`type`: String = "template", payload: Payload)
 
 /**
- * The structured message to send rich content like bubbles/cards. It has the following structure:
- *
- * {{{
- *   {
- *     "recipient": {
- *       "id": "USER_ID"
- *     },
- *     "message": {
- *         "attachment": {
- *             "type": "template",
- *             "payload": {
- *                 "template_type": "generic",
- *                 "elements": [
- *                     {
- *                         "title": "First card",
- *                         "subtitle": "Element #1 of an hscroll",
- *                         "image_url": "http://messengerdemo.parseapp.com/img/rift.png",
- *                         "buttons": [
- *                             {
- *                                 "type": "web_url",
- *                                 "url": "https://www.messenger.com/",
- *                                 "title": "Web url"
- *                             },
- *                             {
- *                                 "type": "postback",
- *                                 "title": "Postback",
- *                                 "payload": "Payload for first element in a generic bubble"
- *                             }
- *                         ]
- *                     },
- *                     {
- *                         "title": "Second card",
- *                         "subtitle": "Element #2 of an hscroll",
- *                         "image_url": "http://messengerdemo.parseapp.com/img/gearvr.png",
- *                         "buttons": [
- *                             {
- *                                 "type": "postback",
- *                                 "title": "Postback",
- *                                 "payload": "Payload for second element in a generic bubble"
- *                             }
- *                         ]
- *                     }
- *                 ]
- *             }
- *         }
- *     }
- *   }
- * }}}
- *
- * @param recipient the user that will receive the message
- * @param message the message with attachment
- */
+  * The structured message to send rich content like bubbles/cards. It has the following structure:
+  *
+  * {{{
+  *   {
+  *     "recipient": {
+  *       "id": "USER_ID"
+  *     },
+  *     "message": {
+  *         "attachment": {
+  *             "type": "template",
+  *             "payload": {
+  *                 "template_type": "generic",
+  *                 "elements": [
+  *                     {
+  *                         "title": "First card",
+  *                         "subtitle": "Element #1 of an hscroll",
+  *                         "image_url": "http://messengerdemo.parseapp.com/img/rift.png",
+  *                         "buttons": [
+  *                             {
+  *                                 "type": "web_url",
+  *                                 "url": "https://www.messenger.com/",
+  *                                 "title": "Web url"
+  *                             },
+  *                             {
+  *                                 "type": "postback",
+  *                                 "title": "Postback",
+  *                                 "payload": "Payload for first element in a generic bubble"
+  *                             }
+  *                         ]
+  *                     },
+  *                     {
+  *                         "title": "Second card",
+  *                         "subtitle": "Element #2 of an hscroll",
+  *                         "image_url": "http://messengerdemo.parseapp.com/img/gearvr.png",
+  *                         "buttons": [
+  *                             {
+  *                                 "type": "postback",
+  *                                 "title": "Postback",
+  *                                 "payload": "Payload for second element in a generic bubble"
+  *                             }
+  *                         ]
+  *                     }
+  *                 ]
+  *             }
+  *         }
+  *     }
+  *   }
+  * }}}
+  *
+  * @param recipient the user that will receive the message
+  * @param message   the message with attachment
+  */
 case class StructuredMessage(recipient: User, message: Map[String, Attachment])
 
 
 case class Error(
-  message: String,
-  `type`: String,
-  code: Long,
-  fbtrace_id: String
-)
+                  message: String,
+                  `type`: String,
+                  code: Long,
+                  fbtrace_id: String
+                )
 
 object Attachment {
   def from(posts: Seq[Submission]): Attachment = {
@@ -205,7 +218,7 @@ object Messages {
   implicit val cardFormat = Json.format[Card]
   implicit val payloadFormat = Json.format[Payload]
   implicit val attachmentFormat = Json.format[Attachment]
-//  implicit val structuredMessageFormat = Json.format[StructuredMessage]
+  //  implicit val structuredMessageFormat = Json.format[StructuredMessage]
 
   implicit val errorFormat = Json.format[Error]
 
@@ -224,11 +237,11 @@ object Messages {
 
   def oops(sender: User, cause: String) = TextResponse(sender, message = Message(text =
     s"""
-    | You know, robots fails sometimes. Unfortunately I was not able to get reddit posts. :-(
-    |
+       | You know, robots fails sometimes. Unfortunately I was not able to get reddit posts. :-(
+       |
     | Here is what happen:
-    | $cause
-    |
+       | $cause
+       |
     | You can try again later.
   """.stripMargin))
 }

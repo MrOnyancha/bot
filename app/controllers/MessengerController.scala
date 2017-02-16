@@ -4,6 +4,7 @@ import javax.inject.{Inject, Singleton}
 
 import models._
 import play.api.libs.ws.WSClient
+import play.api.mvc.Result
 
 import scala.concurrent.Future
 
@@ -40,11 +41,24 @@ class MessengerController @Inject()(
 
   def receiveMessage = Action.async(parse.json) { request =>
     Json.fromJson[ReceivedMessage](request.body) match {
-      case JsSuccess(obj, _) => println(s"testing out the $obj"); Future(Ok("SENT"))
-//    println(s"testing out the ${request.body}"); Future(Ok("SENT"))
+      case JsSuccess(obj, _) => processMessage (obj)
       case JsError(x) => println(s"fail $x"); Future(Ok("SENT"))
     }
   }
+
+
+  def processMessage (obj : ReceivedMessage) : Future[Result] =
+    if( obj.entry.nonEmpty )
+    obj.entry.head.messaging match {
+      case   Messaging(_,_,_,_,input) => println(s"DELiVERY testing out the $input"); Future(Ok("SENT"))
+      case   Messaging(_,_,_,input,_) => println(s" MESSAGE testing out the $input"); Future(Ok("SENT"))
+      case  x => println(s"Testing out the others $x"); Future(Ok("SENT"))
+  }
+    else Future(Ok("FAILURE"))
+
+
+
+
 
 
 //    def receiveMessage = Action.async(parse.json) { request =>
