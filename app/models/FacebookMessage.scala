@@ -33,7 +33,7 @@ object Messaging {
   implicit val reads = Json.reads[Messaging]
 }
 
-case class Entry(id: Long, time: Long, messaging: Seq[Messaging])
+case class Entry(id: String, time: Long, messaging: Seq[Messaging])
 object Entry {
   implicit val writes = Json.writes[Entry]
   implicit val reads = Json.reads[Entry]
