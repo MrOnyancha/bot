@@ -9,20 +9,20 @@ case class Message(mid: Option[String] = None, seq: Option[Long] = None, text: S
 
 case class Delivery(mids: Seq[String], watermark: Long, seq: Long)
 
-//object User {
-//  implicit val writes = Json.writes[User]
-//  implicit val reads = Json.reads[User]
-//}
-//
-//object Message {
-//  implicit val writes = Json.writes[Message]
-//  implicit val reads = Json.reads[Message]
-//}
+object User {
+  implicit val writes = Json.writes[User]
+  implicit val reads = Json.reads[User]
+}
 
-//object Delivery {
-//  implicit val writes = Json.writes[Delivery]
-//  implicit val reads = Json.reads[Delivery]
-//}
+object Message {
+  implicit val writes = Json.writes[Message]
+  implicit val reads = Json.reads[Message]
+}
+
+object Delivery {
+  implicit val writes = Json.writes[Delivery]
+  implicit val reads = Json.reads[Delivery]
+}
 
 case class Messaging(
                       sender: User,
@@ -32,21 +32,21 @@ case class Messaging(
                       delivery: Option[Delivery] = None
                       //  postback:
                       // read:
-                      // account_linking :
+                      // account_linking:
                       //optin:
                     )
 
-//object Messaging {
-//  implicit val writes = Json.writes[Messaging]
-//  implicit val reads = Json.reads[Messaging]
-//}
+object Messaging {
+  implicit val writes = Json.writes[Messaging]
+  implicit val reads = Json.reads[Messaging]
+}
 
 case class Entry(id: String, time: Long, messaging: Seq[Messaging])
 
-//object Entry {
-//  implicit val writes = Json.writes[Entry]
-//  implicit val reads = Json.reads[Entry]
-//}
+object Entry {
+  implicit val writes = Json.writes[Entry]
+  implicit val reads = Json.reads[Entry]
+}
 
 /**
   * Represents a message received from Messenger Platform. It has the following structure:
@@ -84,10 +84,10 @@ case class Entry(id: String, time: Long, messaging: Seq[Messaging])
   */
 case class ReceivedMessage(`object`: String, entry: Seq[Entry])
 
-//object ReceivedMessage {
-//  implicit val writes = Json.writes[ReceivedMessage]
-//  implicit val reads = Json.reads[ReceivedMessage]
-//}
+object ReceivedMessage {
+  implicit val writes = Json.writes[ReceivedMessage]
+  implicit val reads = Json.reads[ReceivedMessage]
+}
 
 /**
   * A simple text message that follow the structure below:
